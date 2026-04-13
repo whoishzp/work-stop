@@ -45,6 +45,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(NSMenuItem(title: "打开设置…", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(.separator())
 
+        // Off-work toggle
+        let isOff = OffWorkManager.shared.isActive
+        let offTitle = isOff ? "取消下班" : "下班 🌙"
+        let offAction = isOff ? #selector(cancelOffWork) : #selector(enterOffWork)
+        let offItem = NSMenuItem(title: offTitle, action: offAction, keyEquivalent: "")
+        offItem.tag = 2
+        menu.addItem(offItem)
+        menu.addItem(.separator())
+
         let loginItem = NSMenuItem(title: "开机自启", action: #selector(toggleLoginItem), keyEquivalent: "")
         loginItem.state = (SMAppService.mainApp.status == .enabled) ? .on : .off
         loginItem.tag = 1
@@ -81,6 +90,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         settingsWindow = window
+    }
+
+    // MARK: - Off-Work
+
+    @objc private func enterOffWork() {
+        OffWorkManager.shared.enter()
+        rebuildMenu()
+    }
+
+    @objc private func cancelOffWork() {
+        OffWorkManager.shared.exit(restore: true)
+        rebuildMenu()
     }
 
     // MARK: - Login Item

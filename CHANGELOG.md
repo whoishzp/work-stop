@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-04-13
+
+### Added
+- 下班模式：一键触发全屏纯黑遮罩（Swift 原生封装，对应 oblack 逻辑）
+- 下班模式防止系统休眠（NSProcessInfo.beginActivity，替代 caffeinate）
+- 进入下班模式自动暂停所有提醒规则，退出时可选择是否恢复
+- Menu Bar 菜单新增「下班 🌙」快捷项
+- 设置面板工具栏新增「下班」按钮（状态感知，进入后变为「取消下班」）
+- Esc 键退出下班模式，并弹窗询问是否恢复提醒计时
+
+### Changed
+- SettingsView 重构为单一 NavigationSplitView + toolbar Segmented Control
+- 修复「当前状态」与「规则配置」两 Tab 的 header 高度不一致问题
+
 ## [1.5.0] - 2026-04-13
 
 ### Changed
