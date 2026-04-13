@@ -81,8 +81,17 @@ struct RuleEditView: View {
             HStack(alignment: .center) {
                 Text("提示时长")
                     .frame(width: 80, alignment: .leading)
-                Stepper("\(rule.durationSeconds) 秒", value: $rule.durationSeconds, in: 0...120)
-                    .frame(maxWidth: 200)
+                TextField("", value: $rule.durationSeconds, format: .number)
+                    .frame(width: 64)
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
+                    .onChange(of: rule.durationSeconds) { v in
+                        rule.durationSeconds = max(0, min(120, v))
+                    }
+                Stepper("", value: $rule.durationSeconds, in: 0...120)
+                    .labelsHidden()
+                Text("秒")
+                    .foregroundColor(.secondary)
                 Spacer()
                 Text("0 = 随时可关闭")
                     .font(.caption)
@@ -106,8 +115,17 @@ struct RuleEditView: View {
         HStack(alignment: .center) {
             Text("提示间隔")
                 .frame(width: 80, alignment: .leading)
-            Stepper("\(rule.intervalMinutes) 分钟", value: $rule.intervalMinutes, in: 1...480)
-                .frame(maxWidth: 200)
+            TextField("", value: $rule.intervalMinutes, format: .number)
+                .frame(width: 64)
+                .textFieldStyle(.roundedBorder)
+                .multilineTextAlignment(.trailing)
+                .onChange(of: rule.intervalMinutes) { v in
+                    rule.intervalMinutes = max(1, min(480, v))
+                }
+            Stepper("", value: $rule.intervalMinutes, in: 1...480)
+                .labelsHidden()
+            Text("分钟")
+                .foregroundColor(.secondary)
             Spacer()
             Text("每隔此时间触发一次")
                 .font(.caption)
