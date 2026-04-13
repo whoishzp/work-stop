@@ -124,26 +124,38 @@ struct SettingsView: View {
 
     private var rulesTab: some View {
         NavigationSplitView(columnVisibility: .constant(.all)) {
-            List(selection: $selectedRuleId) {
-                ForEach(store.rules) { rule in
-                    RuleRowView(rule: rule).tag(rule.id)
-                }
-                .onDelete { store.deleteRules(at: $0) }
-                .onMove { store.rules.move(fromOffsets: $0, toOffset: $1) }
-            }
-            .listStyle(.sidebar)
-            .frame(minWidth: 190)
-            .navigationTitle("提醒规则")
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        store.addRule()
-                        selectedRuleId = store.rules.last?.id
-                    } label: {
-                        Label("新增", systemImage: "plus")
+            VStack(spacing: 0) {
+                List(selection: $selectedRuleId) {
+                    ForEach(store.rules) { rule in
+                        RuleRowView(rule: rule).tag(rule.id)
                     }
+                    .onDelete { store.deleteRules(at: $0) }
+                    .onMove { store.rules.move(fromOffsets: $0, toOffset: $1) }
                 }
+                .listStyle(.sidebar)
+
+                Divider()
+
+                // 新增按钮放在 sidebar 底部，不进入 window toolbar
+                Button {
+                    store.addRule()
+                    selectedRuleId = store.rules.last?.id
+                } label: {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                            .foregroundColor(.accentColor)
+                        Text("新增规则")
+                            .font(.system(size: 13))
+                            .foregroundColor(.accentColor)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                }
+                .buttonStyle(.plain)
+                .background(Color(NSColor.controlBackgroundColor))
             }
+            .frame(minWidth: 190)
         } detail: {
             if let id = selectedRuleId,
                let idx = store.rules.firstIndex(where: { $0.id == id }) {
@@ -152,6 +164,7 @@ struct SettingsView: View {
                 emptyRuleDetail
             }
         }
+        .navigationTitle("WorkStop")
     }
 
     private var emptyRuleDetail: some View {

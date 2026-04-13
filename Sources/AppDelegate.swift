@@ -90,6 +90,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         settingsWindow = window
+
+        // Prevent NavigationSplitView from overriding window title
+        NotificationCenter.default.addObserver(
+            forName: NSWindow.didUpdateNotification,
+            object: window,
+            queue: .main
+        ) { [weak window] _ in
+            if window?.title != "WorkStop" { window?.title = "WorkStop" }
+        }
     }
 
     // MARK: - Off-Work

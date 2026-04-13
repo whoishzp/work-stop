@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.11.0] - 2026-04-13
+
+### Fixed
+- 窗口标题固定为「WorkStop」，不再被 NavigationSplitView 覆盖为规则名称
+- 规则配置的「新增」按钮移至 sidebar 底部面板区域，不再出现在 macOS 窗口标题栏
+
 ## [1.10.0] - 2026-04-13
 
 ### Fixed
