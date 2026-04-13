@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-04-13
+
+### Changed
+- Removed Dock icon (back to Menu Bar only, LSUIElement)
+
 ## [1.4.0] - 2026-04-13
 
 ### Changed
