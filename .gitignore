@@ -1,0 +1,11 @@
+.build/
+.idea/
+.swiftpm/
+*.o
+*.d
+WorkStop.app/
+WorkStop.dmg
+WorkStop-*.dmg
+dist/
+cursor/data/
+cursor/memory/
