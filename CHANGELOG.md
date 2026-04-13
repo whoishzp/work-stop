@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-04-13
+
+### Added
+- App now shows in both Dock and Menu Bar simultaneously
+- Closing the settings window no longer quits the app (stays running in background)
+
 ## [1.2.0] - 2026-04-13
 
 ### Added
