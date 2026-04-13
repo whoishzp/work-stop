@@ -72,9 +72,17 @@ struct SettingsView: View {
                 OffWorkManager.shared.enter()
             }
         } label: {
-            Text(offWork.isActive ? "取消下班" : "下班")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundColor(offWork.isActive ? .orange : Color(NSColor.systemRed))
+            HStack(spacing: 4) {
+                Image(systemName: offWork.isActive ? "moon.zzz.fill" : "moon.zzz")
+                    .font(.system(size: 12, weight: .medium))
+                Text(offWork.isActive ? "取消下班" : "下班")
+                    .font(.system(size: 13, weight: .semibold))
+            }
+            .padding(.horizontal, 13)
+            .padding(.vertical, 6)
+            .background(offWork.isActive ? Color.orange : Color(NSColor.systemRed))
+            .foregroundColor(.white)
+            .cornerRadius(7)
         }
         .buttonStyle(.plain)
         .help(offWork.isActive ? "退出下班模式，恢复提醒计时" : "进入下班模式：黑幕遮屏，暂停所有提醒")
