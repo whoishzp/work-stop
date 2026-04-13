@@ -137,6 +137,10 @@ class OffWorkManager {
 
     /// Returns true if password matches or user entered correctly.
     private func verifyPassword() -> Bool {
+        // Hide black screens first so the alert is visible above them
+        windows.forEach { $0.orderOut(nil) }
+        NSApp.activate(ignoringOtherApps: true)
+
         let alert = NSAlert()
         alert.messageText = "解锁下班模式"
         alert.informativeText = "请输入退出密码"
@@ -149,8 +153,16 @@ class OffWorkManager {
         alert.accessoryView = input
 
         let response = alert.runModal()
-        guard response == .alertFirstButtonReturn else { return false }
-        return input.stringValue == AppSettings.shared.offWorkPassword
+        let correct = response == .alertFirstButtonReturn
+            && input.stringValue == AppSettings.shared.offWorkPassword
+
+        if !correct {
+            // Wrong password or cancelled — restore black screens
+            windows.forEach { $0.makeKeyAndOrderFront(nil) }
+            NSApp.activate(ignoringOtherApps: true)
+        }
+
+        return correct
     }
 
     private func askRestoreRules() {

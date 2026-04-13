@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0] - 2026-04-13
+
+### Fixed
+- 密码输入框被黑幕遮挡问题：弹出 NSAlert 前临时隐藏黑幕窗口，密码错误后自动恢复
+
 ## [1.9.0] - 2026-04-13
 
 ### Fixed
