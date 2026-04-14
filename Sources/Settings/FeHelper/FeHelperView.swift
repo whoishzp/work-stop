@@ -58,6 +58,7 @@ struct FeHelperView: View {
             .cornerRadius(7)
         }
         .buttonStyle(.plain)
+        .contentShape(Rectangle())
     }
 
     // MARK: - Tool Content

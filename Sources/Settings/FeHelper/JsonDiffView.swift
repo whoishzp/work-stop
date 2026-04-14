@@ -46,6 +46,7 @@ struct JsonDiffView: View {
                         diffCount = 0
                     }
                     .font(.caption).buttonStyle(.plain).foregroundColor(.secondary)
+                    .contentShape(Rectangle())
                 }
             }
             .padding(.horizontal, 12)
@@ -83,6 +84,7 @@ struct JsonDiffView: View {
                 }
                 .font(.system(size: 10)).buttonStyle(.plain)
                 .foregroundColor(.accentColor)
+                .contentShape(Rectangle())
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 6)

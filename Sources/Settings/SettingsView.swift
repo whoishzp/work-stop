@@ -67,6 +67,7 @@ struct SettingsView: View {
             .cornerRadius(8)
         }
         .buttonStyle(.plain)
+        .contentShape(Rectangle())
     }
 
     // MARK: - Off-Work Button

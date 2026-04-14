@@ -56,6 +56,7 @@ struct ReminderView: View {
             .cornerRadius(6)
         }
         .buttonStyle(.plain)
+        .contentShape(Rectangle())
     }
 
     // MARK: - Sub Content

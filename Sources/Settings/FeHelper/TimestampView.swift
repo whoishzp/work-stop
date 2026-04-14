@@ -264,7 +264,7 @@ struct TimestampView: View {
 
     private func fillQuickAction(_ action: QuickAction) {
         let date = action.date()
-        let ts = Int(date.timeIntervalSince1970)
+        let ts = Int64(date.timeIntervalSince1970)
         inputText = "\(ts)"
         parseInput()
     }
@@ -294,8 +294,10 @@ struct TimestampView: View {
         }
 
         // Unix timestamp (seconds or milliseconds)
-        if let ts = Double(trimmed) {
+        if let ts = Double(trimmed), ts.isFinite {
             let adjusted = ts > 1e12 ? ts / 1000 : ts
+            // Guard against dates far outside representable range (year ~1-9999)
+            guard adjusted > -62_167_219_200 && adjusted < 253_402_300_800 else { return nil }
             return Date(timeIntervalSince1970: adjusted)
         }
 
@@ -325,14 +327,9 @@ struct TimestampView: View {
 
     private func buildResults(from date: Date) {
         let tsDouble = date.timeIntervalSince1970
+        guard tsDouble.isFinite else { parseError = "时间超出范围"; return }
         let ts = Int64(tsDouble.rounded())
-        // Use Int64 multiplication to avoid overflow for far-future/past dates
-        let tsMs: Int64
-        if ts > 9_223_372_036_854_775 || ts < -9_223_372_036_854_775 {
-            tsMs = ts // overflow guard: skip *1000
-        } else {
-            tsMs = ts * 1000
-        }
+        let tsMs: Int64 = ts.multipliedReportingOverflow(by: 1000).overflow ? ts : ts * 1000
         parseResults = [
             ParseResult(label: "Unix时间戳（秒）", value: "\(ts)"),
             ParseResult(label: "Unix时间戳（毫秒）", value: "\(tsMs)"),

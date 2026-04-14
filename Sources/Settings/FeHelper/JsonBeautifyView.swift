@@ -18,10 +18,12 @@ struct JsonBeautifyView: View {
                         .onChange(of: isCompact) { _ in formatJSON() }
                     Button("清空") { input = ""; formattedLines = []; error = "" }
                         .font(.caption).buttonStyle(.plain).foregroundColor(.secondary)
+                        .contentShape(Rectangle())
                     Button("粘贴") {
                         input = NSPasteboard.general.string(forType: .string) ?? ""
                     }
                     .font(.caption).buttonStyle(.plain).foregroundColor(.accentColor)
+                    .contentShape(Rectangle())
                 }
                 Divider()
                 TextEditor(text: $input)
@@ -59,6 +61,7 @@ struct JsonBeautifyView: View {
                     .font(.caption).buttonStyle(.plain)
                     .foregroundColor(formattedLines.isEmpty ? .secondary : .accentColor)
                     .disabled(formattedLines.isEmpty)
+                    .contentShape(Rectangle())
                 }
                 Divider()
                 ScrollView {
