@@ -63,8 +63,8 @@ struct JsonDiffView: View {
                 panelView(title: "JSON B", text: $rightFormatted, diffLines: rightDiffLines)
                     .onChange(of: rightFormatted) { _ in processChange(side: .right) }
             }
-            .padding(.horizontal, 10)
-            .padding(.bottom, 10)
+            .padding(16)
+            .padding(.top, 0)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

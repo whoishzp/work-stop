@@ -59,7 +59,7 @@ struct EncodingView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 100)
                 .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.25), lineWidth: 1))
-                .padding(12)
+                .padding(16)
 
             Divider()
 
@@ -68,7 +68,7 @@ struct EncodingView: View {
                 opRow(label: "加密：", ops: Self.encodeOps)
                 opRow(label: "解密：", ops: Self.decodeOps)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 16)
             .padding(.vertical, 8)
 
             // Buttons
@@ -83,7 +83,7 @@ struct EncodingView: View {
                     .buttonStyle(.borderedProminent)
                     .controlSize(.regular)
             }
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 16)
             .padding(.bottom, 8)
 
             Divider()
@@ -98,7 +98,7 @@ struct EncodingView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.25), lineWidth: 1))
             }
-            .padding(12)
+            .padding(16)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

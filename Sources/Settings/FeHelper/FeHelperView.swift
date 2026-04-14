@@ -62,11 +62,16 @@ struct FeHelperView: View {
 
     @ViewBuilder
     private var toolContent: some View {
-        switch selectedTool {
-        case .jsonBeautify: JsonBeautifyView()
-        case .jsonDiff:     JsonDiffView()
-        case .encoding:     EncodingView()
-        case .timestamp:    TimestampView()
+        Group {
+            switch selectedTool {
+            case .jsonBeautify: JsonBeautifyView()
+            case .jsonDiff:     JsonDiffView()
+            case .encoding:     EncodingView()
+            case .timestamp:    TimestampView()
+            }
         }
+        .id(selectedTool)
+        .transition(.identity)
+        .animation(.none, value: selectedTool)
     }
 }

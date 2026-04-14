@@ -60,7 +60,7 @@ struct TimestampView: View {
                     inputSection
                     parseResultSection
                 }
-                .padding(20)
+                .padding(16)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 

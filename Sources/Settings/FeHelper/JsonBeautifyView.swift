@@ -91,7 +91,7 @@ struct JsonBeautifyView: View {
             .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
             .cornerRadius(6)
         }
-        .padding(14)
+        .padding(16)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
