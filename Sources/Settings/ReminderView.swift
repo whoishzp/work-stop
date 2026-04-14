@@ -5,6 +5,7 @@ struct ReminderView: View {
     @StateObject private var store = RulesStore.shared
     @State private var selectedSubTab: SubTab = .status
     @State private var selectedRuleId: UUID?
+    @State private var skillExported = false
 
     enum SubTab: String, CaseIterable {
         case status = "当前状态"
@@ -35,10 +36,34 @@ struct ReminderView: View {
                 subTabButton(tab)
             }
             Spacer()
+            exportSkillButton
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 12)
         .background(Color(NSColor.controlBackgroundColor))
+    }
+
+    private var exportSkillButton: some View {
+        Button {
+            let ok = ReminderSkillExporter.export(rules: store.rules)
+            if ok {
+                skillExported = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { skillExported = false }
+            }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: skillExported ? "checkmark.circle.fill" : "wand.and.stars")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(skillExported ? .green : .accentColor)
+                Text(skillExported ? "已导出" : "导出 Skill")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(skillExported ? .green : .primary)
+            }
+            .animation(.easeInOut(duration: 0.2), value: skillExported)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .help("导出到 ~/.cursor/skills/magicer-reminders/SKILL.md，Cursor AI 可直接感知并操作规则")
     }
 
     private func subTabButton(_ tab: SubTab) -> some View {

@@ -2,7 +2,7 @@
 
 > 工作中断提醒 + 开发者工具箱 — macOS App
 
-[![Version](https://img.shields.io/badge/version-1.53.0-blue.svg)](https://github.com/whoishzp/magicer/releases)
+[![Version](https://img.shields.io/badge/version-1.54.0-blue.svg)](https://github.com/whoishzp/magicer/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey.svg)](https://developer.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/swift-5.9%2B-orange.svg)](https://swift.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -176,6 +176,11 @@ git tag v1.48.0 && git push origin v1.48.0
 ```
 
 ## 变更日志
+
+### v1.54.0（2026-04-14）
+
+- 全屏覆盖根本修复：参考 cursor-stop 三要素 — 恢复 `.transient`、改用 `orderFrontRegardless()`、弹出时临时切换激活策略为 `.accessory`（不占 Space），关闭后恢复 `.regular`
+- 下班模式同步应用以上策略
 
 ### v1.53.0（2026-04-14）
 

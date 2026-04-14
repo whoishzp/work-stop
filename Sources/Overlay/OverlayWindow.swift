@@ -1,16 +1,22 @@
 import AppKit
 
 // MARK: - OverlayNSWindow
-// Borderless windows can't become key by default; override to allow focus acquisition
-// so makeKeyAndOrderFront works correctly on full-screen dedicated Spaces.
+// Borderless windows can't become key by default; override so they can receive
+// mouse and keyboard events after NSApp.activate is called.
 class OverlayNSWindow: NSWindow {
     override var canBecomeKey: Bool  { true }
     override var canBecomeMain: Bool { true }
 }
 
 /// Manages the lifecycle of full-screen overlay windows.
-/// Layout building is delegated to OverlayLayouts.swift.
-/// The close button component lives in CloseButtonView.swift.
+/// Strategy mirrors cursor-stop's Swift binary:
+///   1. Temporarily switch NSApp activation policy to .accessory so the app has
+///      no dedicated Space and overlay windows appear on every full-screen Space.
+///   2. Use orderFrontRegardless() — doesn't require the app to already be active.
+///   3. collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
+///      .transient is critical: "follow the active Space" → shows on full-screen desktop.
+///   4. NSApp.activate(ignoringOtherApps:) after all windows are shown.
+///   5. On dismiss, restore .regular policy so the Dock icon returns.
 class OverlayManager {
     static var windows: [NSWindow] = []
     static var countdownTimer: Timer?
@@ -28,27 +34,26 @@ class OverlayManager {
     static func show(rule: ReminderRule, onDismiss: (() -> Void)? = nil) {
         guard windows.isEmpty else { return }
         OverlayManager.onDismiss = onDismiss
-        let theme = ThemeColors.find(rule.themeId)
         closeBtns.removeAll()
         countdownLabels.removeAll()
         enterPressCount = 0
         lastEnterTime = nil
 
+        let theme = ThemeColors.find(rule.themeId)
+
+        // Drop from Dock / Space so overlay windows aren't bound to Magicer's Space.
+        NSApp.setActivationPolicy(.accessory)
+
         for screen in NSScreen.screens {
             windows.append(buildWindow(screen: screen, rule: rule, theme: theme))
         }
 
+        // orderFrontRegardless: forces window to front even when app is not active.
+        windows.forEach { $0.orderFrontRegardless() }
         NSApp.activate(ignoringOtherApps: true)
-        windows.forEach { $0.makeKeyAndOrderFront(nil) }
+
         installKeyMonitor()
         installSpaceObserver()
-
-        // Delayed re-show to handle dedicated full-screen Spaces on extended monitors
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-            guard !windows.isEmpty else { return }
-            NSApp.activate(ignoringOtherApps: true)
-            windows.forEach { $0.makeKeyAndOrderFront(nil) }
-        }
 
         let closeDelay = rule.canCloseImmediately ? 0 : rule.durationSeconds
         if closeDelay <= 0 {
@@ -71,10 +76,17 @@ class OverlayManager {
         closeBtns.removeAll()
         countdownLabels.removeAll()
         enterPressCount = 0
+
+        // Restore Dock icon / normal Space behaviour.
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
+
         let callback = onDismiss
         onDismiss = nil
         DispatchQueue.main.async { callback?() }
     }
+
+    // MARK: - Space observer
 
     private static func installSpaceObserver() {
         spaceObserver = NSWorkspace.shared.notificationCenter.addObserver(
@@ -83,20 +95,22 @@ class OverlayManager {
             queue: .main
         ) { _ in
             guard !windows.isEmpty else { return }
+            windows.forEach { $0.orderFrontRegardless() }
             NSApp.activate(ignoringOtherApps: true)
-            windows.forEach { $0.makeKeyAndOrderFront(nil) }
         }
     }
 
-    // MARK: - Window Construction
+    // MARK: - Window construction
 
     private static func buildWindow(screen: NSScreen, rule: ReminderRule, theme: ThemeColors) -> NSWindow {
         let fr = screen.frame
-        let win = OverlayNSWindow(contentRect: fr, styleMask: .borderless, backing: .buffered, defer: false, screen: screen)
-        win.level = NSWindow.Level(rawValue: Int(NSWindow.Level.screenSaver.rawValue) + 200)
+        let win = OverlayNSWindow(contentRect: fr, styleMask: .borderless,
+                                  backing: .buffered, defer: false, screen: screen)
+        win.level = NSWindow.Level(rawValue: Int(NSWindow.Level.screenSaver.rawValue) + 100)
         win.isOpaque = true
         win.backgroundColor = theme.background
-        win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+        // .transient = follow the active Space (required for full-screen Space coverage)
+        win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
         win.ignoresMouseEvents = false
         win.acceptsMouseMovedEvents = true
 
@@ -111,7 +125,7 @@ class OverlayManager {
         return win
     }
 
-    // MARK: - Enter Key Backdoor (4 presses within 3 s)
+    // MARK: - Enter key backdoor (4 presses within 3 s)
 
     private static func installKeyMonitor() {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in

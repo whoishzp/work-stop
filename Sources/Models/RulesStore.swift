@@ -26,6 +26,7 @@ class RulesStore: ObservableObject {
         if let data = try? JSONEncoder().encode(rules) {
             UserDefaults.standard.set(data, forKey: key)
         }
+        ReminderSkillExporter.export(rules: rules)
     }
 
     func addRule() {

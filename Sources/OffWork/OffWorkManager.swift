@@ -70,6 +70,10 @@ class OffWorkManager {
     private func buildBlackScreens() {
         windows.removeAll()
 
+        // Switch to .accessory so overlay windows have no dedicated Space
+        // and can appear on every full-screen Space (same strategy as cursor-stop).
+        NSApp.setActivationPolicy(.accessory)
+
         for screen in NSScreen.screens {
             let fr = screen.frame
             let win = OverlayNSWindow(
@@ -79,13 +83,13 @@ class OffWorkManager {
                 defer: false,
                 screen: screen
             )
-            win.level = NSWindow.Level(rawValue: Int(NSWindow.Level.screenSaver.rawValue) + 200)
+            win.level = NSWindow.Level(rawValue: Int(NSWindow.Level.screenSaver.rawValue) + 100)
             win.isOpaque = true
             win.backgroundColor = .black
-            win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
+            // .transient = follow the active Space (critical for full-screen Space coverage)
+            win.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .transient]
             win.ignoresMouseEvents = false
 
-            // Animated scanning eyes overlay
             let eyesView = ScanningEyesView(frame: NSRect(origin: .zero, size: fr.size))
             eyesView.autoresizingMask = [.width, .height]
             win.contentView?.addSubview(eyesView)
@@ -94,16 +98,8 @@ class OffWorkManager {
             windows.append(win)
         }
 
-        // Show all windows after construction
+        windows.forEach { $0.orderFrontRegardless() }
         NSApp.activate(ignoringOtherApps: true)
-        windows.forEach { $0.makeKeyAndOrderFront(nil) }
-
-        // Delayed retry to cover full-screen dedicated Spaces on extended monitors
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
-            guard let self, self.isActive else { return }
-            NSApp.activate(ignoringOtherApps: true)
-            self.windows.forEach { $0.makeKeyAndOrderFront(nil) }
-        }
     }
 
     // MARK: - System Sleep Prevention (replaces caffeinate)
@@ -145,8 +141,8 @@ class OffWorkManager {
             queue: .main
         ) { [weak self] _ in
             guard let self, self.isActive, !self.windows.isEmpty else { return }
+            self.windows.forEach { $0.orderFrontRegardless() }
             NSApp.activate(ignoringOtherApps: true)
-            self.windows.forEach { $0.makeKeyAndOrderFront(nil) }
         }
     }
 
@@ -196,8 +192,7 @@ class OffWorkManager {
             && input.stringValue == AppSettings.shared.offWorkPassword
 
         if !correct {
-            // Wrong password or cancelled — restore black screens
-            windows.forEach { $0.makeKeyAndOrderFront(nil) }
+            windows.forEach { $0.orderFrontRegardless() }
             NSApp.activate(ignoringOtherApps: true)
         }
 
@@ -227,5 +222,8 @@ class OffWorkManager {
         windows.forEach { $0.orderOut(nil) }
         windows.removeAll()
         endActivity()
+        // Restore Dock icon / normal Space behaviour.
+        NSApp.setActivationPolicy(.regular)
+        NSApp.activate(ignoringOtherApps: true)
     }
 }
