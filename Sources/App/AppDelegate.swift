@@ -34,6 +34,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered, defer: false
         )
         window.title = "Magicer"
+        window.collectionBehavior = [.fullScreenPrimary]
         window.toolbarStyle = .unifiedCompact
         window.contentView = NSHostingView(rootView: SettingsView())
         window.center()
