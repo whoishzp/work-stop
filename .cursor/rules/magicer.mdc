@@ -23,25 +23,17 @@ alwaysApply: true
 
 ## 版本管理策略
 
-### 每次代码修改完成后（自动执行）
+### 每次代码修改完成后（自动执行完整发布）
 
 ```bash
 # 1. 升版本号
 echo "x.y.z" > VERSION
 # 2. 更新 README.md badge + 变更日志
-# 3. 提交 + push + 打 tag
-git add -A && git commit -m "vx.y.z: <简要说明>" && git push
-git tag vx.y.z && git push origin vx.y.z
-```
-
-**不执行 `./release.sh`**，不生成 DMG，不创建 GitHub Release。
-
-### 仅当用户明确说"release"或"发布"时才执行完整发布
-
-```bash
+# 3. 执行完整发布（构建 DMG、复制到桌面、git commit/push/tag、GitHub Release）
 ./release.sh
-# 该脚本自动构建 DMG、复制到桌面、创建 GitHub Release
 ```
+
+**每次代码修改后必须执行 `./release.sh`**，生成 DMG 并复制到桌面。
 
 ## 技术栈约束
 
