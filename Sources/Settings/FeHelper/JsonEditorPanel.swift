@@ -1,6 +1,34 @@
 import SwiftUI
 import AppKit
 
+// MARK: - Auto-formatting NSTextView subclass
+
+final class AutoFormatJsonTextView: NSTextView {
+    override func paste(_ sender: Any?) {
+        super.paste(sender)
+        autoFormatIfJson()
+    }
+
+    override func pasteAsPlainText(_ sender: Any?) {
+        super.pasteAsPlainText(sender)
+        autoFormatIfJson()
+    }
+
+    private func autoFormatIfJson() {
+        let current = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !current.isEmpty,
+              let data = current.data(using: .utf8),
+              let obj = try? JSONSerialization.jsonObject(with: data),
+              let formatted = try? JSONSerialization.data(withJSONObject: obj,
+                    options: [.prettyPrinted, .sortedKeys]),
+              let str = String(data: formatted, encoding: .utf8),
+              str != string
+        else { return }
+        let range = NSRange(location: 0, length: (string as NSString).length)
+        insertText(str, replacementRange: range)
+    }
+}
+
 /// Editable NSTextView panel with JSON syntax highlighting and diff-line background support.
 struct JsonEditorPanel: NSViewRepresentable {
     @Binding var text: String
@@ -9,8 +37,21 @@ struct JsonEditorPanel: NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeNSView(context: Context) -> NSScrollView {
-        let scrollView = NSTextView.scrollableTextView()
-        guard let textView = scrollView.documentView as? NSTextView else { return scrollView }
+        let scrollView = NSScrollView()
+        scrollView.hasVerticalScroller = true
+        scrollView.hasHorizontalScroller = false
+        scrollView.autohidesScrollers = true
+        scrollView.backgroundColor = .textBackgroundColor
+
+        let textView = AutoFormatJsonTextView()
+        textView.isVerticallyResizable = true
+        textView.isHorizontallyResizable = false
+        textView.autoresizingMask = [.width]
+        textView.textContainer?.widthTracksTextView = true
+        textView.textContainer?.containerSize = NSSize(width: scrollView.contentSize.width, height: .greatestFiniteMagnitude)
+        scrollView.documentView = textView
+
+        guard let textView = scrollView.documentView as? AutoFormatJsonTextView else { return scrollView }
 
         textView.isEditable = true
         textView.isRichText = false
@@ -24,16 +65,11 @@ struct JsonEditorPanel: NSViewRepresentable {
         textView.delegate = context.coordinator
         textView.allowsUndo = true
 
-        scrollView.hasVerticalScroller = true
-        scrollView.hasHorizontalScroller = false
-        scrollView.autohidesScrollers = true
-        scrollView.backgroundColor = .textBackgroundColor
-
         return scrollView
     }
 
     func updateNSView(_ scrollView: NSScrollView, context: Context) {
-        guard let textView = scrollView.documentView as? NSTextView else { return }
+        guard let textView = scrollView.documentView as? AutoFormatJsonTextView else { return }
         guard !context.coordinator.isEditing else { return }
 
         context.coordinator.isUpdating = true
