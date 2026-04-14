@@ -30,14 +30,14 @@ struct ReminderView: View {
     // MARK: - Sub Tab Bar
 
     private var subTabBar: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             ForEach(SubTab.allCases, id: \.self) { tab in
                 subTabButton(tab)
             }
             Spacer()
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
         .background(Color(NSColor.controlBackgroundColor))
     }
 

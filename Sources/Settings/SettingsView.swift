@@ -36,15 +36,15 @@ struct SettingsView: View {
     // MARK: - Left Sidebar
 
     private var sidebar: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             ForEach(Tab.allCases, id: \.self) { tab in
                 sidebarTabButton(tab)
             }
             Spacer()
         }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 14)
-        .frame(width: 148)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 18)
+        .frame(width: 156)
         .background(Color(NSColor.controlBackgroundColor))
     }
 
@@ -60,11 +60,11 @@ struct SettingsView: View {
                     .font(.system(size: 13, weight: .medium))
                 Spacer()
             }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 7)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
             .background(selectedTab == tab ? Color.accentColor : Color.clear)
             .foregroundColor(selectedTab == tab ? .white : .secondary)
-            .cornerRadius(7)
+            .cornerRadius(8)
         }
         .buttonStyle(.plain)
     }

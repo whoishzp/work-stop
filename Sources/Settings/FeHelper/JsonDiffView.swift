@@ -65,7 +65,6 @@ struct JsonDiffView: View {
                     .onChange(of: rightFormatted) { _ in processChange(side: .right) }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(JsonSyntaxHighlighter.bgColor)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }

@@ -61,7 +61,7 @@ struct JsonBeautifyView: View {
                 HStack {
                     Text("格式化结果")
                         .font(.caption)
-                        .foregroundColor(Color(NSColor(JsonSyntaxHighlighter.lineNumColor)))
+                        .foregroundColor(.secondary)
                     Spacer()
                     if !error.isEmpty {
                         Text(error).font(.caption).foregroundColor(.red).lineLimit(1)
@@ -82,7 +82,7 @@ struct JsonBeautifyView: View {
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
-                .background(JsonSyntaxHighlighter.bgColor.opacity(0.9))
+                .background(Color(NSColor.controlBackgroundColor))
 
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
@@ -106,6 +106,8 @@ struct JsonBeautifyView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(JsonSyntaxHighlighter.bgColor)
+                .cornerRadius(6)
+                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
             }
             .cornerRadius(6)
             .padding(.leading, 4)

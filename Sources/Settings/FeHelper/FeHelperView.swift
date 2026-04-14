@@ -32,14 +32,14 @@ struct FeHelperView: View {
     // MARK: - Horizontal Tool Bar
 
     private var toolBar: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 8) {
             ForEach(Tool.allCases, id: \.self) { tool in
                 toolTabButton(tool)
             }
             Spacer()
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 12)
         .background(Color(NSColor.controlBackgroundColor))
     }
 
@@ -51,11 +51,11 @@ struct FeHelperView: View {
                 Image(systemName: tool.icon).font(.system(size: 11, weight: .medium))
                 Text(tool.rawValue).font(.system(size: 12, weight: .medium))
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
             .background(selectedTool == tool ? Color.accentColor : Color.clear)
             .foregroundColor(selectedTool == tool ? .white : .secondary)
-            .cornerRadius(6)
+            .cornerRadius(7)
         }
         .buttonStyle(.plain)
     }

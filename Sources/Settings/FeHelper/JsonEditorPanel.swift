@@ -17,8 +17,8 @@ struct JsonEditorPanel: NSViewRepresentable {
         textView.isAutomaticQuoteSubstitutionEnabled = false
         textView.isAutomaticDashSubstitutionEnabled = false
         textView.isAutomaticTextReplacementEnabled = false
-        textView.backgroundColor = NSColor(JsonSyntaxHighlighter.bgColor)
-        textView.insertionPointColor = .white
+        textView.backgroundColor = .textBackgroundColor
+        textView.insertionPointColor = .textColor
         textView.font = NSFont.monospacedSystemFont(ofSize: 12, weight: .regular)
         textView.textContainerInset = NSSize(width: 8, height: 8)
         textView.delegate = context.coordinator
@@ -27,7 +27,7 @@ struct JsonEditorPanel: NSViewRepresentable {
         scrollView.hasVerticalScroller = true
         scrollView.hasHorizontalScroller = false
         scrollView.autohidesScrollers = true
-        scrollView.backgroundColor = NSColor(JsonSyntaxHighlighter.bgColor)
+        scrollView.backgroundColor = .textBackgroundColor
 
         return scrollView
     }

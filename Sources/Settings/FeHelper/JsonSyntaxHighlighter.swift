@@ -1,15 +1,15 @@
 import SwiftUI
 
 enum JsonSyntaxHighlighter {
-    // Dark theme colors (VS Code–like)
-    static let bgColor       = Color(red: 0.12, green: 0.12, blue: 0.14)
-    static let lineNumColor  = Color(red: 0.40, green: 0.40, blue: 0.45)
-    static let keyColor      = Color(red: 0.53, green: 0.81, blue: 0.98)   // light blue
-    static let stringColor   = Color(red: 0.81, green: 0.53, blue: 0.36)   // warm orange
-    static let numberColor   = Color(red: 0.74, green: 0.92, blue: 0.60)   // green
-    static let boolNullColor = Color(red: 0.82, green: 0.60, blue: 0.98)   // purple
-    static let punctColor    = Color(red: 0.76, green: 0.76, blue: 0.76)   // light gray
-    static let defaultColor  = Color(red: 0.93, green: 0.93, blue: 0.93)   // near white
+    // Light theme colors (adapts to system appearance)
+    static let bgColor       = Color(NSColor.textBackgroundColor)
+    static let lineNumColor  = Color(NSColor.tertiaryLabelColor)
+    static let keyColor      = Color(red: 0.13, green: 0.37, blue: 0.80)   // blue
+    static let stringColor   = Color(red: 0.72, green: 0.24, blue: 0.02)   // dark orange-red
+    static let numberColor   = Color(red: 0.06, green: 0.52, blue: 0.26)   // dark green
+    static let boolNullColor = Color(red: 0.52, green: 0.10, blue: 0.70)   // dark purple
+    static let punctColor    = Color(NSColor.secondaryLabelColor)
+    static let defaultColor  = Color(NSColor.labelColor)
 
     /// Highlight a single JSON line, returning an AttributedString.
     static func highlight(_ line: String) -> AttributedString {
