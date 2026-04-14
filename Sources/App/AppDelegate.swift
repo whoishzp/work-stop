@@ -29,7 +29,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let window = HideOnCloseWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 640, height: 520),
+            contentRect: NSRect(x: 0, y: 0, width: 860, height: 560),
             styleMask: [.titled, .closable, .miniaturizable, .resizable],
             backing: .buffered, defer: false
         )

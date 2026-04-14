@@ -30,7 +30,7 @@ struct SettingsView: View {
                 content
             }
         }
-        .frame(minWidth: 680, minHeight: 500)
+        .frame(minWidth: 780, minHeight: 500)
         .background(Color(NSColor.windowBackgroundColor))
     }
 
