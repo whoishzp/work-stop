@@ -188,7 +188,7 @@ struct TimestampView: View {
                 Divider().frame(height: 40)
                 timeCell(title: "Unix时间戳(秒)", value: "\(Int(currentTime.timeIntervalSince1970))")
                 Divider().frame(height: 40)
-                timeCell(title: "Unix时间戳(毫秒)", value: "\(Int(currentTime.timeIntervalSince1970 * 1000))")
+                timeCell(title: "Unix时间戳(毫秒)", value: "\(Int64(currentTime.timeIntervalSince1970) * 1000)")
             }
             .padding(12)
             .background(Color.accentColor.opacity(0.05))
@@ -324,8 +324,15 @@ struct TimestampView: View {
     }
 
     private func buildResults(from date: Date) {
-        let ts = Int(date.timeIntervalSince1970)
-        let tsMs = ts * 1000
+        let tsDouble = date.timeIntervalSince1970
+        let ts = Int64(tsDouble.rounded())
+        // Use Int64 multiplication to avoid overflow for far-future/past dates
+        let tsMs: Int64
+        if ts > 9_223_372_036_854_775 || ts < -9_223_372_036_854_775 {
+            tsMs = ts // overflow guard: skip *1000
+        } else {
+            tsMs = ts * 1000
+        }
         parseResults = [
             ParseResult(label: "Unix时间戳（秒）", value: "\(ts)"),
             ParseResult(label: "Unix时间戳（毫秒）", value: "\(tsMs)"),

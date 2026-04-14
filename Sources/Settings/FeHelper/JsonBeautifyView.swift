@@ -8,14 +8,10 @@ struct JsonBeautifyView: View {
     @State private var copyFeedback: String = ""
 
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
-            // Left: input
-            VStack(alignment: .leading, spacing: 6) {
-                HStack {
-                    Text("输入 JSON")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
+        HStack(spacing: 10) {
+            // Left: input panel
+            VStack(spacing: 0) {
+                panelHeader(title: "输入 JSON") {
                     Toggle("压缩", isOn: $isCompact)
                         .font(.caption)
                         .toggleStyle(.checkbox)
@@ -27,10 +23,10 @@ struct JsonBeautifyView: View {
                     }
                     .font(.caption).buttonStyle(.plain).foregroundColor(.accentColor)
                 }
+                Divider()
                 TextEditor(text: $input)
                     .font(.system(size: 12, design: .monospaced))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.3), lineWidth: 1))
                     .onChange(of: input) { _ in
                         if !input.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                             formatJSON()
@@ -40,33 +36,17 @@ struct JsonBeautifyView: View {
                         }
                     }
             }
-            .padding(12)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
+            .cornerRadius(6)
 
-            // Divider with status
-            VStack(spacing: 6) {
-                if !error.isEmpty {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.red)
-                        .font(.system(size: 16))
-                } else if !formattedLines.isEmpty {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                        .font(.system(size: 16))
-                }
-            }
-            .frame(width: 24)
-
-            // Right: syntax highlighted output
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    Text("格式化结果")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Spacer()
+            // Right: output panel
+            VStack(spacing: 0) {
+                panelHeader(title: "格式化结果") {
                     if !error.isEmpty {
                         Text(error).font(.caption).foregroundColor(.red).lineLimit(1)
                     } else if !copyFeedback.isEmpty {
-                        Text(copyFeedback).font(.caption).foregroundColor(.green).transition(.opacity)
+                        Text(copyFeedback).font(.caption).foregroundColor(.green)
                     }
                     Button("复制全部") {
                         NSPasteboard.general.clearContents()
@@ -80,10 +60,7 @@ struct JsonBeautifyView: View {
                     .foregroundColor(formattedLines.isEmpty ? .secondary : .accentColor)
                     .disabled(formattedLines.isEmpty)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 8)
-                .background(Color(NSColor.controlBackgroundColor))
-
+                Divider()
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(Array(formattedLines.enumerated()), id: \.0) { idx, line in
@@ -106,14 +83,24 @@ struct JsonBeautifyView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(JsonSyntaxHighlighter.bgColor)
-                .cornerRadius(6)
-                .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
             .cornerRadius(6)
-            .padding(.leading, 4)
-            .padding(12)
         }
+        .padding(14)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    @ViewBuilder
+    private func panelHeader<Trailing: View>(title: String, @ViewBuilder trailing: () -> Trailing) -> some View {
+        HStack(spacing: 6) {
+            Text(title).font(.caption).foregroundColor(.secondary)
+            Spacer()
+            trailing()
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
     }
 
     private func formatJSON() {

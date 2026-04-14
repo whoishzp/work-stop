@@ -75,22 +75,25 @@ struct JsonDiffView: View {
             HStack {
                 Text(title)
                     .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(JsonSyntaxHighlighter.lineNumColor)
+                    .foregroundColor(.secondary)
                 Spacer()
                 Button("格式化") {
                     if title == "JSON A" { autoFormat(side: .left) }
                     else { autoFormat(side: .right) }
                 }
                 .font(.system(size: 10)).buttonStyle(.plain)
-                .foregroundColor(JsonSyntaxHighlighter.lineNumColor)
+                .foregroundColor(.accentColor)
             }
             .padding(.horizontal, 10)
-            .padding(.vertical, 5)
-            .background(JsonSyntaxHighlighter.bgColor)
+            .padding(.vertical, 6)
+
+            Divider()
 
             JsonEditorPanel(text: text, diffLineIndices: diffLines)
         }
         .frame(maxWidth: .infinity)
+        .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.secondary.opacity(0.2), lineWidth: 1))
+        .cornerRadius(6)
     }
 
     // MARK: - Processing
