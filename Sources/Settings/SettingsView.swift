@@ -131,7 +131,8 @@ struct SettingsView: View {
     // MARK: - Rules Tab
 
     private var rulesTab: some View {
-        NavigationSplitView(columnVisibility: .constant(.all)) {
+        HSplitView {
+            // Sidebar
             VStack(spacing: 0) {
                 List(selection: $selectedRuleId) {
                     ForEach(store.rules) { rule in
@@ -144,7 +145,6 @@ struct SettingsView: View {
 
                 Divider()
 
-                // 新增按钮放在 sidebar 底部，不进入 window toolbar
                 Button {
                     store.addRule()
                     selectedRuleId = store.rules.last?.id
@@ -163,8 +163,9 @@ struct SettingsView: View {
                 .buttonStyle(.plain)
                 .background(Color(NSColor.controlBackgroundColor))
             }
-            .frame(minWidth: 190)
-        } detail: {
+            .frame(minWidth: 180, idealWidth: 200, maxWidth: 280)
+
+            // Detail pane
             if let id = selectedRuleId,
                let idx = store.rules.firstIndex(where: { $0.id == id }) {
                 RuleEditView(rule: $store.rules[idx])
@@ -172,7 +173,6 @@ struct SettingsView: View {
                 emptyRuleDetail
             }
         }
-        .navigationTitle("WorkStop")
     }
 
     private var emptyRuleDetail: some View {
