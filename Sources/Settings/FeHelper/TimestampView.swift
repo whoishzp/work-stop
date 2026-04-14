@@ -53,7 +53,6 @@ struct TimestampView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                // Quick actions
                 quickActionsSection
 
                 // Input + parse
@@ -79,9 +78,6 @@ struct TimestampView: View {
 
     private var quickActionsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Label("快捷操作", systemImage: "bolt.fill")
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundColor(.secondary)
             HStack(spacing: 8) {
                 ForEach(QuickAction.allCases, id: \.self) { action in
                     Button {
