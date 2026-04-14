@@ -258,17 +258,17 @@ struct TimestampView: View {
                         Text(result.value)
                             .font(.system(size: 12, design: .monospaced))
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        Button {
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(result.value, forType: .string)
-                        } label: {
-                            Image(systemName: "doc.on.clipboard").font(.system(size: 10)).foregroundColor(.secondary)
-                        }
-                        .buttonStyle(.plain)
                     }
                     .padding(.vertical, 6)
                     .padding(.horizontal, 10)
                     .background(Color(NSColor.controlBackgroundColor))
+                    .contentShape(Rectangle())
+                    .onTapGesture(count: 2) {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(result.value, forType: .string)
+                        showToast("已复制 ✓")
+                    }
+                    .help("双击复制")
                     if result.id != parseResults.last?.id {
                         Divider()
                     }
