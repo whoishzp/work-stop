@@ -7,6 +7,8 @@ struct TimestampView: View {
     @State private var inputText: String = ""
     @State private var parseResults: [ParseResult] = []
     @State private var parseError: String = ""
+    @State private var toastMessage: String = ""
+    @State private var toastTask: DispatchWorkItem?
 
     struct ParseResult: Identifiable {
         let id = UUID()
@@ -51,19 +53,32 @@ struct TimestampView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                quickActionsSection
-
-                // Input + parse
-                inputSection
-
-                // Current time
-                currentTimeSection
+        ZStack(alignment: .bottom) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    quickActionsSection
+                    inputSection
+                    currentTimeSection
+                }
+                .padding(20)
             }
-            .padding(20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            // Toast
+            if !toastMessage.isEmpty {
+                Text(toastMessage)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.black.opacity(0.75))
+                    .cornerRadius(20)
+                    .padding(.bottom, 20)
+                    .transition(.opacity)
+                    .allowsHitTesting(false)
+            }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .animation(.easeInOut(duration: 0.2), value: toastMessage)
         .onAppear {
             startTimer()
             fillQuickAction(.now)
@@ -205,6 +220,16 @@ struct TimestampView: View {
         }
     }
 
+    private func showToast(_ message: String) {
+        toastTask?.cancel()
+        withAnimation { toastMessage = message }
+        let task = DispatchWorkItem {
+            withAnimation { toastMessage = "" }
+        }
+        toastTask = task
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5, execute: task)
+    }
+
     private func timeCell(title: String, value: String) -> some View {
         VStack(alignment: .center, spacing: 4) {
             Text(title).font(.caption).foregroundColor(.secondary)
@@ -214,6 +239,7 @@ struct TimestampView: View {
         .onTapGesture(count: 2) {
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(value, forType: .string)
+            showToast("已复制 ✓")
         }
         .help("双击复制")
     }
