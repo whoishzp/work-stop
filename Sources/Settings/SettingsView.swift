@@ -21,32 +21,18 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            header
+        HStack(spacing: 0) {
+            sidebar
             Divider()
-            HStack(spacing: 0) {
-                sidebar
-                Divider()
-                content
-            }
+            content
         }
         .frame(minWidth: 780, minHeight: 500)
         .background(Color(NSColor.windowBackgroundColor))
-    }
-
-    // MARK: - Header
-
-    private var header: some View {
-        HStack {
-            Text("Magicer")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundColor(.primary)
-            Spacer()
-            offWorkButton
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                offWorkButton
+            }
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(Color(NSColor.windowBackgroundColor))
     }
 
     // MARK: - Left Sidebar
