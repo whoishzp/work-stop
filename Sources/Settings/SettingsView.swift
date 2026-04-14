@@ -141,7 +141,7 @@ struct SettingsView: View {
                     .onDelete { store.deleteRules(at: $0) }
                     .onMove { store.rules.move(fromOffsets: $0, toOffset: $1) }
                 }
-                .listStyle(.sidebar)
+                .listStyle(.inset)
 
                 Divider()
 
