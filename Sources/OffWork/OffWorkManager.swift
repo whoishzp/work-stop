@@ -158,6 +158,10 @@ class OffWorkManager {
         input.placeholderString = "输入密码"
         alert.accessoryView = input
 
+        // Force layout so the alert window exists, then set first responder
+        alert.layout()
+        alert.window.initialFirstResponder = input
+
         let response = alert.runModal()
         let correct = response == .alertFirstButtonReturn
             && input.stringValue == AppSettings.shared.offWorkPassword
