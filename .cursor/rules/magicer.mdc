@@ -1,0 +1,45 @@
+---
+description: Magicer 项目专属规则
+alwaysApply: true
+---
+
+# Magicer 项目规则
+
+## README 同步规则（强制）
+
+**每次完成功能修改、发布新版本后，必须同步更新 `README.md`**，包括但不限于：
+
+- `功能特性` 章节：新增/修改/删除的功能点
+- `变更日志` 章节：在最顶部追加当前版本的变更说明
+- `目录结构` 章节：如有新增或删除文件
+- badge 中的版本号
+
+**禁止**在 README 未更新的情况下完成 release。
+
+## DMG 管理规则
+
+- 项目根目录和 `dist/` 目录各只保留**最新一个** `.dmg` 文件
+- `release.sh` 脚本会自动清理旧 DMG，但手动构建时需注意清理
+
+## 版本发布流程
+
+```bash
+echo "x.y.z" > VERSION
+./release.sh
+# 更新 README.md 的版本号和变更日志
+git add -A && git commit -m "vx.y.z: <简要说明>" && git push
+git tag vx.y.z && git push origin vx.y.z
+```
+
+## 技术栈约束
+
+- SwiftUI + AppKit 混合（UI 用 SwiftUI，系统集成用 AppKit）
+- 数据持久化：`UserDefaults`（Codable 序列化）
+- 无第三方依赖（纯 Swift Package）
+- 最低支持 macOS 13.0
+
+## 文件结构规范
+
+- 新功能模块放在 `Sources/` 对应子目录下
+- Controller/Manager 类用 `class`（需要引用语义），View 用 `struct`
+- 共享状态用 `ObservableObject` + `@Published`

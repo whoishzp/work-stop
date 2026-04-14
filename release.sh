@@ -23,6 +23,9 @@ mkdir -p "${TMP_DIR}"
 cp -r "${BINARY_NAME}.app" "${TMP_DIR}/${APP_DISPLAY}.app"
 ln -s /Applications "${TMP_DIR}/Applications"
 
+echo "▶ Cleaning up old DMGs in project root..."
+ls *.dmg 2>/dev/null | grep -v "^${DMG_NAME}$" | xargs rm -f || true
+
 echo "▶ Creating DMG..."
 rm -f "${DMG_NAME}"
 hdiutil create \
