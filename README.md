@@ -2,7 +2,7 @@
 
 > 工作中断提醒 + 开发者工具箱 — macOS App
 
-[![Version](https://img.shields.io/badge/version-1.55.0-blue.svg)](https://github.com/whoishzp/magicer/releases)
+[![Version](https://img.shields.io/badge/version-1.56.0-blue.svg)](https://github.com/whoishzp/magicer/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey.svg)](https://developer.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/swift-5.9%2B-orange.svg)](https://swift.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -176,6 +176,11 @@ git tag v1.48.0 && git push origin v1.48.0
 ```
 
 ## 变更日志
+
+### v1.56.0（2026-04-14）
+
+- 定时提醒右上角新增「安装 Skill」按钮：一键同时写入 Cursor（`~/.cursor/skills/magicer-reminders/SKILL.md`）和 Claude（`~/.claude/CLAUDE.md` 标记块），支持重复安装（幂等更新）
+- 安装结果细分三态：全部成功 / 部分成功 / 失败，颜色区分
 
 ### v1.55.0（2026-04-14）
 

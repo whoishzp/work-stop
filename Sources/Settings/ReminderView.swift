@@ -5,6 +5,9 @@ struct ReminderView: View {
     @StateObject private var store = RulesStore.shared
     @State private var selectedSubTab: SubTab = .status
     @State private var selectedRuleId: UUID?
+    @State private var installState: InstallState = .idle
+
+    enum InstallState { case idle, success, partial, failure }
 
     enum SubTab: String, CaseIterable {
         case status = "当前状态"
@@ -35,10 +38,61 @@ struct ReminderView: View {
                 subTabButton(tab)
             }
             Spacer()
+            installSkillButton
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 12)
         .background(Color(NSColor.controlBackgroundColor))
+    }
+
+    private var installSkillButton: some View {
+        Button {
+            let result = ReminderSkillExporter.installAll(rules: store.rules)
+            installState = result.cursor && result.claude ? .success
+                         : (result.cursor || result.claude) ? .partial
+                         : .failure
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) { installState = .idle }
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: iconForInstallState)
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(colorForInstallState)
+                Text(labelForInstallState)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(installState == .idle ? .primary : colorForInstallState)
+            }
+            .animation(.easeInOut(duration: 0.2), value: installState)
+        }
+        .buttonStyle(.bordered)
+        .controlSize(.small)
+        .help("写入 Cursor (~/.cursor/skills/) 和 Claude (~/.claude/CLAUDE.md)")
+    }
+
+    private var iconForInstallState: String {
+        switch installState {
+        case .idle:    return "square.and.arrow.down"
+        case .success: return "checkmark.circle.fill"
+        case .partial: return "exclamationmark.circle.fill"
+        case .failure: return "xmark.circle.fill"
+        }
+    }
+
+    private var colorForInstallState: Color {
+        switch installState {
+        case .idle:    return .accentColor
+        case .success: return .green
+        case .partial: return .orange
+        case .failure: return .red
+        }
+    }
+
+    private var labelForInstallState: String {
+        switch installState {
+        case .idle:    return "安装 Skill"
+        case .success: return "已安装"
+        case .partial: return "部分成功"
+        case .failure: return "安装失败"
+        }
     }
 
     private func subTabButton(_ tab: SubTab) -> some View {
