@@ -29,6 +29,8 @@ class RuleTimerManager {
             scheduleInterval(rule: rule)
         case .scheduled:
             scheduleNextFixed(rule: rule)
+        case .once:
+            scheduleOnce(rule: rule)
         }
     }
 
@@ -110,12 +112,42 @@ class RuleTimerManager {
         return candidates.min()
     }
 
+    // MARK: - One-shot Mode
+
+    private func scheduleOnce(rule: ReminderRule) {
+        let delay = rule.onceDate.timeIntervalSinceNow
+        guard delay > 0 else {
+            // Date already passed — auto-disable without firing
+            DispatchQueue.main.async {
+                var updated = rule
+                updated.isEnabled = false
+                RulesStore.shared.updateRule(updated)
+            }
+            return
+        }
+        let timer = Timer(timeInterval: delay, repeats: false) { [weak self] _ in
+            self?.fire(rule: rule)
+            var updated = rule
+            updated.isEnabled = false
+            RulesStore.shared.updateRule(updated)
+        }
+        RunLoop.main.add(timer, forMode: .common)
+        timers[rule.id] = timer
+    }
+
     // MARK: - Fire
 
     private func fire(rule: ReminderRule) {
         saveLastFire(for: rule)
         DispatchQueue.main.async {
-            OverlayManager.show(rule: rule)
+            let followup: (() -> Void)? = rule.followupMinutes > 0 ? {
+                let delay = TimeInterval(rule.followupMinutes * 60)
+                let t = Timer(timeInterval: delay, repeats: false) { _ in
+                    DispatchQueue.main.async { OverlayManager.show(rule: rule) }
+                }
+                RunLoop.main.add(t, forMode: .common)
+            } : nil
+            OverlayManager.show(rule: rule, onDismiss: followup)
         }
     }
 

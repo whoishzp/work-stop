@@ -139,6 +139,7 @@ struct CodeLineView: View {
             Text(JsonSyntaxHighlighter.highlight(line))
                 .font(.system(size: 12, design: .monospaced))
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .textSelection(.enabled)
 
             // Copy button on hover
             if isHovered, let onCopy = onCopy {

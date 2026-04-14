@@ -11,6 +11,7 @@ class OffWorkManager {
     private var activityToken: NSObjectProtocol?
     private var rulesSnapshot: [UUID: Bool] = [:]
     private var keyMonitor: Any?
+    private var spaceObserver: NSObjectProtocol?
 
     private init() {}
 
@@ -25,6 +26,7 @@ class OffWorkManager {
         beginActivity()
         buildBlackScreens()
         installKeyMonitor()
+        installSpaceObserver()
 
         NSApp.activate(ignoringOtherApps: true)
     }
@@ -128,6 +130,25 @@ class OffWorkManager {
         if let m = keyMonitor { NSEvent.removeMonitor(m); keyMonitor = nil }
     }
 
+    private func installSpaceObserver() {
+        spaceObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.activeSpaceDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self, self.isActive else { return }
+            NSApp.activate(ignoringOtherApps: true)
+            self.windows.forEach { $0.makeKeyAndOrderFront(nil) }
+        }
+    }
+
+    private func removeSpaceObserver() {
+        if let obs = spaceObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(obs)
+            spaceObserver = nil
+        }
+    }
+
     private func handleEscape() {
         // Password check if configured
         if AppSettings.shared.hasPassword {
@@ -194,6 +215,7 @@ class OffWorkManager {
 
     private func tearDown() {
         removeKeyMonitor()
+        removeSpaceObserver()
         windows.forEach { $0.orderOut(nil) }
         windows.removeAll()
         endActivity()

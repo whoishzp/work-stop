@@ -12,11 +12,14 @@ class OverlayManager {
     private static var keyMonitor: Any?
     private static var enterPressCount = 0
     private static var lastEnterTime: Date?
+    private static var spaceObserver: NSObjectProtocol?
+    private static var onDismiss: (() -> Void)?
 
     // MARK: - Public API
 
-    static func show(rule: ReminderRule) {
+    static func show(rule: ReminderRule, onDismiss: (() -> Void)? = nil) {
         guard windows.isEmpty else { return }
+        OverlayManager.onDismiss = onDismiss
         let theme = ThemeColors.find(rule.themeId)
         closeBtns.removeAll()
         countdownLabels.removeAll()
@@ -29,6 +32,7 @@ class OverlayManager {
 
         NSApp.activate(ignoringOtherApps: true)
         installKeyMonitor()
+        installSpaceObserver()
 
         let closeDelay = rule.canCloseImmediately ? 0 : rule.durationSeconds
         if closeDelay <= 0 {
@@ -42,11 +46,30 @@ class OverlayManager {
     static func dismiss() {
         countdownTimer?.invalidate(); countdownTimer = nil
         if let m = keyMonitor { NSEvent.removeMonitor(m); keyMonitor = nil }
+        if let obs = spaceObserver {
+            NSWorkspace.shared.notificationCenter.removeObserver(obs)
+            spaceObserver = nil
+        }
         windows.forEach { $0.orderOut(nil) }
         windows.removeAll()
         closeBtns.removeAll()
         countdownLabels.removeAll()
         enterPressCount = 0
+        let callback = onDismiss
+        onDismiss = nil
+        DispatchQueue.main.async { callback?() }
+    }
+
+    private static func installSpaceObserver() {
+        spaceObserver = NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.activeSpaceDidChangeNotification,
+            object: nil,
+            queue: .main
+        ) { _ in
+            guard !windows.isEmpty else { return }
+            NSApp.activate(ignoringOtherApps: true)
+            windows.forEach { $0.orderFrontRegardless() }
+        }
     }
 
     // MARK: - Window Construction

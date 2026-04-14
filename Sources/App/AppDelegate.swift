@@ -19,6 +19,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        if let w = settingsWindow, w.isVisible {
+            w.close()
+            return .terminateCancel
+        }
+        return .terminateNow
+    }
+
     // MARK: - Settings Window
 
     @objc func openSettings() {

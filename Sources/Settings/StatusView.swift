@@ -168,6 +168,11 @@ private struct RuleCard: View {
         case .scheduled:
             let times = rule.scheduledTimes.map { $0.displayText }.joined(separator: " / ")
             modePart = times.isEmpty ? "定点（无时刻）" : "定点 \(times)"
+        case .once:
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
+            modePart = "一次 \(formatter.string(from: rule.onceDate))"
         }
         let parts: [String] = [
             modePart,

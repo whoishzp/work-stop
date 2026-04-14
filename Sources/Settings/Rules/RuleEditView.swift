@@ -73,16 +73,42 @@ struct RuleEditView: View {
                 Picker("", selection: $rule.triggerMode) {
                     Text("循环提醒").tag(TriggerMode.interval)
                     Text("定点提醒").tag(TriggerMode.scheduled)
+                    Text("一次提醒").tag(TriggerMode.once)
                 }
                 .pickerStyle(.segmented)
-                .frame(maxWidth: 240)
+                .frame(maxWidth: 340)
                 Spacer()
             }
 
             if rule.triggerMode == .interval {
                 intervalConfig
-            } else {
+            } else if rule.triggerMode == .scheduled {
                 scheduledConfig
+            } else {
+                onceConfig
+            }
+
+            Divider()
+
+            // Followup reminder (applies to all modes)
+            HStack(alignment: .center) {
+                Text("跟进提醒")
+                    .frame(width: 80, alignment: .leading)
+                TextField("", value: $rule.followupMinutes, format: .number)
+                    .frame(width: 50)
+                    .textFieldStyle(.roundedBorder)
+                    .multilineTextAlignment(.trailing)
+                    .onChange(of: rule.followupMinutes) { v in
+                        rule.followupMinutes = max(0, min(120, v))
+                    }
+                Stepper("", value: $rule.followupMinutes, in: 0...120)
+                    .labelsHidden()
+                Text("分钟")
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text("关闭蒙层后 N 分钟再提醒一次（0 = 不跟进）")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
             }
 
             Divider()
@@ -214,6 +240,20 @@ struct RuleEditView: View {
             }
 
             Text("可添加多个定点时刻，每天到点触发")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    private var onceConfig: some View {
+        HStack(alignment: .center) {
+            Text("触发时刻")
+                .frame(width: 80, alignment: .leading)
+            DatePicker("", selection: $rule.onceDate)
+                .datePickerStyle(.compact)
+                .labelsHidden()
+            Spacer()
+            Text("到时触发一次后自动停用")
                 .font(.caption)
                 .foregroundColor(.secondary)
         }
