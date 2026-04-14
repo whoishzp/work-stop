@@ -9,6 +9,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menuBar.onOpenSettings = { [weak self] in self?.openSettings() }
         menuBar.setup()
         RuleTimerManager.shared.start()
+        ReminderHTTPServer.shared.start()
         StartupCommandRunner.run()
         openSettings()
     }
