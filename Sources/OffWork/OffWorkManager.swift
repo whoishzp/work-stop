@@ -24,11 +24,9 @@ class OffWorkManager {
 
         snapshotAndPauseRules()
         beginActivity()
-        buildBlackScreens()
+        buildBlackScreens()    // calls activate + makeKeyAndOrderFront internally
         installKeyMonitor()
         installSpaceObserver()
-
-        NSApp.activate(ignoringOtherApps: true)
     }
 
     // MARK: - Exit Off-Work Mode
@@ -74,7 +72,7 @@ class OffWorkManager {
 
         for screen in NSScreen.screens {
             let fr = screen.frame
-            let win = NSWindow(
+            let win = OverlayNSWindow(
                 contentRect: fr,
                 styleMask: .borderless,
                 backing: .buffered,
@@ -92,9 +90,19 @@ class OffWorkManager {
             eyesView.autoresizingMask = [.width, .height]
             win.contentView?.addSubview(eyesView)
 
-            win.makeKeyAndOrderFront(nil)
-            win.setFrame(fr, display: true)
+            win.setFrame(fr, display: false)
             windows.append(win)
+        }
+
+        // Show all windows after construction
+        NSApp.activate(ignoringOtherApps: true)
+        windows.forEach { $0.makeKeyAndOrderFront(nil) }
+
+        // Delayed retry to cover full-screen dedicated Spaces on extended monitors
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            guard let self, self.isActive else { return }
+            NSApp.activate(ignoringOtherApps: true)
+            self.windows.forEach { $0.makeKeyAndOrderFront(nil) }
         }
     }
 
@@ -136,7 +144,7 @@ class OffWorkManager {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            guard let self, self.isActive else { return }
+            guard let self, self.isActive, !self.windows.isEmpty else { return }
             NSApp.activate(ignoringOtherApps: true)
             self.windows.forEach { $0.makeKeyAndOrderFront(nil) }
         }

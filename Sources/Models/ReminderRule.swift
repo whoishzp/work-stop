@@ -44,6 +44,30 @@ struct ReminderRule: Codable, Identifiable, Equatable {
     var themeId: String
     var isEnabled: Bool
 
+    // Custom CodingKeys and decoder to maintain backward compatibility.
+    // New fields (onceDate, followupMinutes) fall back to defaults when absent in stored data.
+    private enum CodingKeys: String, CodingKey {
+        case id, name, triggerMode, intervalMinutes, scheduledTimes
+        case onceDate, followupMinutes
+        case durationSeconds, canCloseImmediately, reminderText, themeId, isEnabled
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id               = try c.decode(UUID.self,            forKey: .id)
+        name             = try c.decode(String.self,          forKey: .name)
+        triggerMode      = (try? c.decode(TriggerMode.self,   forKey: .triggerMode)) ?? .interval
+        intervalMinutes  = try c.decode(Int.self,             forKey: .intervalMinutes)
+        scheduledTimes   = try c.decode([ScheduledTime].self, forKey: .scheduledTimes)
+        onceDate         = (try? c.decode(Date.self,          forKey: .onceDate)) ?? Date().addingTimeInterval(3600)
+        followupMinutes  = (try? c.decode(Int.self,           forKey: .followupMinutes)) ?? 0
+        durationSeconds  = try c.decode(Int.self,             forKey: .durationSeconds)
+        canCloseImmediately = try c.decode(Bool.self,         forKey: .canCloseImmediately)
+        reminderText     = try c.decode(String.self,          forKey: .reminderText)
+        themeId          = try c.decode(String.self,          forKey: .themeId)
+        isEnabled        = try c.decode(Bool.self,            forKey: .isEnabled)
+    }
+
     init(
         id: UUID = UUID(),
         name: String = "提醒",

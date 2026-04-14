@@ -1,5 +1,13 @@
 import AppKit
 
+// MARK: - OverlayNSWindow
+// Borderless windows can't become key by default; override to allow focus acquisition
+// so makeKeyAndOrderFront works correctly on full-screen dedicated Spaces.
+class OverlayNSWindow: NSWindow {
+    override var canBecomeKey: Bool  { true }
+    override var canBecomeMain: Bool { true }
+}
+
 /// Manages the lifecycle of full-screen overlay windows.
 /// Layout building is delegated to OverlayLayouts.swift.
 /// The close button component lives in CloseButtonView.swift.
@@ -31,8 +39,16 @@ class OverlayManager {
         }
 
         NSApp.activate(ignoringOtherApps: true)
+        windows.forEach { $0.makeKeyAndOrderFront(nil) }
         installKeyMonitor()
         installSpaceObserver()
+
+        // Delayed re-show to handle dedicated full-screen Spaces on extended monitors
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+            guard !windows.isEmpty else { return }
+            NSApp.activate(ignoringOtherApps: true)
+            windows.forEach { $0.makeKeyAndOrderFront(nil) }
+        }
 
         let closeDelay = rule.canCloseImmediately ? 0 : rule.durationSeconds
         if closeDelay <= 0 {
@@ -68,7 +84,7 @@ class OverlayManager {
         ) { _ in
             guard !windows.isEmpty else { return }
             NSApp.activate(ignoringOtherApps: true)
-            windows.forEach { $0.orderFrontRegardless() }
+            windows.forEach { $0.makeKeyAndOrderFront(nil) }
         }
     }
 
@@ -76,7 +92,7 @@ class OverlayManager {
 
     private static func buildWindow(screen: NSScreen, rule: ReminderRule, theme: ThemeColors) -> NSWindow {
         let fr = screen.frame
-        let win = NSWindow(contentRect: fr, styleMask: .borderless, backing: .buffered, defer: false, screen: screen)
+        let win = OverlayNSWindow(contentRect: fr, styleMask: .borderless, backing: .buffered, defer: false, screen: screen)
         win.level = NSWindow.Level(rawValue: Int(NSWindow.Level.screenSaver.rawValue) + 100)
         win.isOpaque = true
         win.backgroundColor = theme.background
@@ -91,8 +107,7 @@ class OverlayManager {
         buildContent(in: root, rule: rule, theme: theme, size: fr.size)
 
         win.contentView = root
-        win.orderFrontRegardless()
-        win.setFrame(fr, display: true)
+        win.setFrame(fr, display: false)
         return win
     }
 
