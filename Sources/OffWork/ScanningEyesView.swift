@@ -5,12 +5,18 @@ import QuartzCore
 class ScanningEyesView: NSView {
 
     private struct EyePair {
-        var center: CGPoint
-        var eyeRadius: CGFloat   // radius of the eye white
-        var pupilRadius: CGFloat // radius of the iris/pupil
-        var phase: Double        // animation phase offset (0–2π)
-        var speed: Double        // scan speed multiplier
-        var blinkOffset: Double  // blink phase offset
+        var baseCenter: CGPoint  // initial anchor position
+        var eyeRadius: CGFloat
+        var pupilRadius: CGFloat
+        var phase: Double        // pupil scan phase
+        var speed: Double        // pupil scan speed
+        var blinkOffset: Double
+        // Float / drift parameters
+        var floatPhaseX: Double  // Lissajous phase X
+        var floatPhaseY: Double  // Lissajous phase Y
+        var floatSpeedX: Double  // drift speed X
+        var floatSpeedY: Double  // drift speed Y
+        var floatRadius: CGFloat // max drift distance
     }
 
     private var eyePairs: [EyePair] = []
@@ -57,12 +63,17 @@ class ScanningEyesView: NSView {
                 if !placed.contains(where: { $0.intersects(rect) }) {
                     placed.append(rect)
                     eyePairs.append(EyePair(
-                        center: CGPoint(x: cx, y: cy),
+                        baseCenter: CGPoint(x: cx, y: cy),
                         eyeRadius: er,
                         pupilRadius: pr,
                         phase: Double.random(in: 0 ..< .pi * 2, using: &rng),
                         speed: Double.random(in: 0.3 ..< 1.0, using: &rng),
-                        blinkOffset: Double.random(in: 0 ..< .pi * 2, using: &rng)
+                        blinkOffset: Double.random(in: 0 ..< .pi * 2, using: &rng),
+                        floatPhaseX: Double.random(in: 0 ..< .pi * 2, using: &rng),
+                        floatPhaseY: Double.random(in: 0 ..< .pi * 2, using: &rng),
+                        floatSpeedX: Double.random(in: 0.04 ..< 0.14, using: &rng),
+                        floatSpeedY: Double.random(in: 0.03 ..< 0.10, using: &rng),
+                        floatRadius: CGFloat.random(in: er * 1.5 ..< er * 4.5, using: &rng)
                     ))
                     break
                 }
@@ -82,10 +93,15 @@ class ScanningEyesView: NSView {
             let blinkCycle = sin(pair.blinkOffset + t * 0.8)
             let isBlinking = blinkCycle > 0.94
 
+            // Floating center: Lissajous drift
+            let driftX = CGFloat(sin(pair.floatPhaseX + t * pair.floatSpeedX)) * pair.floatRadius
+            let driftY = CGFloat(cos(pair.floatPhaseY + t * pair.floatSpeedY)) * pair.floatRadius * 0.6
+            let floatCenter = CGPoint(x: pair.baseCenter.x + driftX, y: pair.baseCenter.y + driftY)
+
             // Eye-to-eye gap = eyeRadius * 2.5
             let gap = pair.eyeRadius * 2.5
-            let leftCenter = CGPoint(x: pair.center.x - gap / 2, y: pair.center.y)
-            let rightCenter = CGPoint(x: pair.center.x + gap / 2, y: pair.center.y)
+            let leftCenter = CGPoint(x: floatCenter.x - gap / 2, y: floatCenter.y)
+            let rightCenter = CGPoint(x: floatCenter.x + gap / 2, y: floatCenter.y)
 
             // Pupil scan: oscillate horizontally with sin
             let scanAmount = pair.eyeRadius * 0.45
@@ -103,7 +119,6 @@ class ScanningEyesView: NSView {
                     pupilOffsetX: pupilOffsetX, pupilOffsetY: pupilOffsetY,
                     isBlinking: isBlinking)
 
-            // Draw brow line above each eye (simple stick figure touch)
             if !isBlinking {
                 drawBrow(ctx: ctx, center: leftCenter, radius: pair.eyeRadius)
                 drawBrow(ctx: ctx, center: rightCenter, radius: pair.eyeRadius)
