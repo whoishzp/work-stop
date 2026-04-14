@@ -53,12 +53,9 @@ struct FeHelperView: View {
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
-            .background(selectedTool == tool ? Color.accentColor : Color.primary.opacity(0.0001))
             .foregroundColor(selectedTool == tool ? .white : .secondary)
-            .cornerRadius(7)
-            .contentShape(RoundedRectangle(cornerRadius: 7))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(GlassTabButtonStyle(isSelected: selectedTool == tool, cornerRadius: 7))
     }
 
     // MARK: - Tool Content

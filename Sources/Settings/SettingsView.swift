@@ -62,12 +62,9 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 9)
-            .background(selectedTab == tab ? Color.accentColor : Color.primary.opacity(0.0001))
             .foregroundColor(selectedTab == tab ? .white : .secondary)
-            .cornerRadius(8)
-            .contentShape(RoundedRectangle(cornerRadius: 8))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(GlassTabButtonStyle(isSelected: selectedTab == tab, cornerRadius: 8))
     }
 
     // MARK: - Off-Work Button

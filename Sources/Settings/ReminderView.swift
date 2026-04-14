@@ -51,12 +51,9 @@ struct ReminderView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(selectedSubTab == tab ? Color.accentColor : Color.primary.opacity(0.0001))
             .foregroundColor(selectedSubTab == tab ? .white : .secondary)
-            .cornerRadius(6)
-            .contentShape(RoundedRectangle(cornerRadius: 6))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(GlassTabButtonStyle(isSelected: selectedSubTab == tab, cornerRadius: 6))
     }
 
     // MARK: - Sub Content
