@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 
 // MARK: - Inline Shortcut Row
 
@@ -289,6 +290,15 @@ struct AppSettingsView: View {
                                         .lineLimit(1)
                                 }
                                 Spacer()
+                                Button {
+                                    NSPasteboard.general.clearContents()
+                                    NSPasteboard.general.setString(cmd.command, forType: .string)
+                                } label: {
+                                    Image(systemName: "doc.on.doc")
+                                        .foregroundColor(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                                .help("复制 shell 命令到剪贴板")
                                 Button {
                                     StartupCommandRunner.runNow(cmd) { outcome in
                                         let name = outcome.label.trimmingCharacters(in: .whitespaces).isEmpty
