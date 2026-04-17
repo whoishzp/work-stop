@@ -101,13 +101,27 @@ struct JsonBeautifyView: View {
         error = ""
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        guard let data = trimmed.data(using: .utf8),
-              let obj = try? JSONSerialization.jsonObject(with: data) else {
-            error = "JSON 解析失败"
-            parsedJson = nil
+
+        // 1. Try direct parse
+        if let data = trimmed.data(using: .utf8),
+           let obj = try? JSONSerialization.jsonObject(with: data) {
+            parsedJson = deepParseNestedJsonStrings(obj)
             return
         }
-        parsedJson = deepParseNestedJsonStrings(obj)
+
+        // 2. Input may be a JSON-string-escaped payload (literal \n, \", etc.)
+        //    Wrap in quotes and decode as JSON string, then re-parse the result.
+        let wrapped = "\"" + trimmed + "\""
+        if let wData = wrapped.data(using: .utf8),
+           let unescaped = try? JSONSerialization.jsonObject(with: wData) as? String,
+           let inner = unescaped.data(using: .utf8),
+           let obj = try? JSONSerialization.jsonObject(with: inner) {
+            parsedJson = deepParseNestedJsonStrings(obj)
+            return
+        }
+
+        error = "JSON 解析失败"
+        parsedJson = nil
     }
 
     /// Recursively walks the parsed JSON and replaces any string value that is
