@@ -2,7 +2,7 @@
 
 > 工作中断提醒 + 开发者工具箱 — macOS App
 
-[![Version](https://img.shields.io/badge/version-1.72.0-blue.svg)](https://github.com/whoishzp/magicer/releases)
+[![Version](https://img.shields.io/badge/version-1.73.0-blue.svg)](https://github.com/whoishzp/magicer/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS%2013%2B-lightgrey.svg)](https://developer.apple.com/macos/)
 [![Swift](https://img.shields.io/badge/swift-5.9%2B-orange.svg)](https://swift.org)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -183,6 +183,10 @@ git tag v1.48.0 && git push origin v1.48.0
 ```
 
 ## 变更日志
+
+### v1.73.0（2026-04-17）
+
+- **JSON 美化**：新增 `expandLiteralEscapesOutsideStrings` — 逐字符追踪字符串边界，只将字符串外的字面量 `\n`/`\r`/`\t` 替换为真实空白字符，字符串内的逃逸序列保持不变；兼容「真实 `"` + 字面量 `\n`」格式输入
 
 ### v1.72.0（2026-04-17）
 

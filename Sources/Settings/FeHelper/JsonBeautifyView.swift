@@ -117,9 +117,19 @@ struct JsonBeautifyView: View {
         }
         do { _ = try JSONSerialization.jsonObject(with: data) } catch { directError = error }
 
-        // 2. Input may be a JSON-string-escaped payload (literal \n, \", etc.)
+        // 2. Input has real " delimiters but literal \n sequences for structural whitespace.
+        //    Context-aware scan: replace \n OUTSIDE string values with actual newlines;
+        //    leave \n INSIDE strings untouched (they're already valid JSON escapes).
+        let structurallyFixed = expandLiteralEscapesOutsideStrings(trimmed)
+        if let sfData = structurallyFixed.data(using: .utf8),
+           let obj = try? JSONSerialization.jsonObject(with: sfData) {
+            parsedJson = deepParseNestedJsonStrings(obj)
+            return
+        }
+
+        // 3. Fully-escaped payload (all " → \", newlines → \n, etc.)
         //    Wrap in quotes → decode as JSON string → re-escape control chars
-        //    that ended up inside JSON string values → parse as JSON.
+        //    that ended up bare inside JSON string values → parse as JSON.
         let wrapped = "\"" + trimmed + "\""
         if let wData = wrapped.data(using: .utf8),
            let unescaped = try? JSONSerialization.jsonObject(with: wData) as? String {
@@ -133,6 +143,55 @@ struct JsonBeautifyView: View {
 
         error = directError?.localizedDescription ?? "JSON 解析失败"
         parsedJson = nil
+    }
+
+    /// Context-aware pass over an input that uses real `"` as string delimiters but
+    /// has literal `\n` / `\r` / `\t` sequences where actual whitespace should be.
+    /// Replaces those 2-char sequences ONLY when they appear OUTSIDE string values so
+    /// the resulting text is structurally valid JSON.  Escape sequences inside strings
+    /// (e.g. `\n` meaning newline in a string value) are passed through unchanged.
+    private func expandLiteralEscapesOutsideStrings(_ text: String) -> String {
+        var result = ""
+        result.reserveCapacity(text.count)
+        var insideString = false
+        var i = text.startIndex
+        while i < text.endIndex {
+            let ch = text[i]
+            let next = text.index(after: i)
+            if insideString {
+                if ch == "\\" && next < text.endIndex {
+                    result.append(ch)
+                    result.append(text[next])
+                    i = text.index(after: next)
+                    continue
+                }
+                if ch == "\"" { insideString = false }
+                result.append(ch)
+            } else {
+                if ch == "\\" && next < text.endIndex {
+                    switch text[next] {
+                    case "n":
+                        result.append("\n")
+                        i = text.index(after: next)
+                        continue
+                    case "r":
+                        result.append("\r")
+                        i = text.index(after: next)
+                        continue
+                    case "t":
+                        result.append("\t")
+                        i = text.index(after: next)
+                        continue
+                    default:
+                        break
+                    }
+                }
+                if ch == "\"" { insideString = true }
+                result.append(ch)
+            }
+            i = text.index(after: i)
+        }
+        return result
     }
 
     /// Scans a JSON text and re-escapes any bare control characters (U+0000–U+001F)
