@@ -48,11 +48,21 @@ struct SettingsView: View {
                 sidebarTabButton(tab)
             }
             Spacer()
+            versionLabel
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 18)
         .frame(width: 156)
         .background(Color(NSColor.controlBackgroundColor))
+    }
+
+    private var versionLabel: some View {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+        return Text("v\(version)")
+            .font(.system(size: 11))
+            .foregroundColor(Color.secondary.opacity(0.6))
+            .padding(.horizontal, 12)
+            .padding(.bottom, 4)
     }
 
     private func sidebarTabButton(_ tab: Tab) -> some View {

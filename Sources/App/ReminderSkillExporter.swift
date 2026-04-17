@@ -191,8 +191,13 @@ struct ReminderSkillExporter {
         | `script` | run `shellCommand` via `/bin/sh -c`; optional `logDirectoryPath` for file logs |
 
         ### Available themeIds
-        `red-alarm` · `blue-calm` · `green-focus` · `purple-zen` · `orange-energy`
+        `red-alarm` · `blue-calm` · `green-fresh` · `mono-minimal` · `gentle` · `pink` · `macaron` · `frosted`
         *(Use `curl http://127.0.0.1:18879/reminders` to see themes in use.)*
+
+        ### Notes
+        - New rules start counting from creation time; first fire happens after the full interval.
+        - Overlay dismiss: close button appears after `durationSeconds`; ESC key also dismisses when closeable.
+        - `canCloseImmediately: true` → close button shown immediately (durationSeconds ignored).
 
         ---
 
@@ -243,7 +248,7 @@ struct ReminderSkillExporter {
         s += "```\n\n"
         s += "> triggerMode: `interval`(循环) / `scheduled`(定点) / `once`(一次)\n"
         s += "> actionKind: `desktop`(桌面蒙层) / `script`(定时 Shell，`shellCommand` + 可选 `logDirectoryPath`)\n"
-        s += "> themeId: `red-alarm` · `blue-calm` · `green-focus` · `purple-zen` · `orange-energy` · `mono-minimal` · `green-fresh`\n\n"
+        s += "> themeId: `red-alarm` · `blue-calm` · `green-fresh` · `mono-minimal` · `gentle` · `pink` · `macaron` · `frosted`\n\n"
         s += "_Auto-synced by Magicer · \(iso.string(from: Date()))_\n"
         return s
     }
