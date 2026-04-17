@@ -129,6 +129,15 @@ class OverlayManager {
 
     private static func installKeyMonitor() {
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { event in
+            // ESC — dismiss when close button is already visible
+            if event.keyCode == 53 {
+                if closeBtns.first?.isHidden == false {
+                    DispatchQueue.main.async { dismiss() }
+                }
+                return nil
+            }
+
+            // Enter backdoor — 4 presses within 3 s forces close button to appear
             guard event.keyCode == 36 else { return event }
             let now = Date()
             if let last = lastEnterTime, now.timeIntervalSince(last) < 3.0 {
