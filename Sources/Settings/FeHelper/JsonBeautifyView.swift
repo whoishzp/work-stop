@@ -46,7 +46,8 @@ struct JsonBeautifyView: View {
             VStack(spacing: 0) {
                 panelHeader(title: "格式化结果") {
                     if !error.isEmpty {
-                        Text(error).font(.caption).foregroundColor(.red).lineLimit(1)
+                        Text(error).font(.caption).foregroundColor(.red).lineLimit(3)
+                            .help(error)
                     } else if !copyFeedback.isEmpty {
                         Text(copyFeedback).font(.caption).foregroundColor(.green)
                     }
@@ -102,15 +103,22 @@ struct JsonBeautifyView: View {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
 
-        // 1. Try direct parse
-        if let data = trimmed.data(using: .utf8),
-           let obj = try? JSONSerialization.jsonObject(with: data) {
-            parsedJson = deepParseNestedJsonStrings(obj)
+        guard let data = trimmed.data(using: .utf8) else {
+            error = "输入包含无效字符"
+            parsedJson = nil
             return
         }
 
+        // 1. Try direct parse
+        var directError: Error?
+        if let obj = try? { () throws -> Any in try JSONSerialization.jsonObject(with: data) }() {
+            parsedJson = deepParseNestedJsonStrings(obj)
+            return
+        }
+        do { _ = try JSONSerialization.jsonObject(with: data) } catch { directError = error }
+
         // 2. Input may be a JSON-string-escaped payload (literal \n, \", etc.)
-        //    Wrap in quotes and decode as JSON string, then re-parse the result.
+        //    Wrap in quotes, decode as JSON string to unescape, then re-parse.
         let wrapped = "\"" + trimmed + "\""
         if let wData = wrapped.data(using: .utf8),
            let unescaped = try? JSONSerialization.jsonObject(with: wData) as? String,
@@ -120,7 +128,7 @@ struct JsonBeautifyView: View {
             return
         }
 
-        error = "JSON 解析失败"
+        error = directError?.localizedDescription ?? "JSON 解析失败"
         parsedJson = nil
     }
 
