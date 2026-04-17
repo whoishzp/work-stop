@@ -175,12 +175,6 @@ struct AppSettingsView: View {
                     // Appearance section
                     appearanceSection
 
-                    // Startup commands section
-                    startupCommandsSection
-
-                    // Off-work shortcut section
-                    shortcutSection
-
                     // Off-work password section
                     GroupBox {
                         VStack(alignment: .leading, spacing: 14) {
@@ -250,6 +244,12 @@ struct AppSettingsView: View {
                         }
                         .padding(4)
                     }
+
+                    // Off-work shortcut section
+                    shortcutSection
+
+                    // Boot startup commands section
+                    startupCommandsSection
                 }
                 .padding(20)
             }
@@ -340,11 +340,11 @@ struct AppSettingsView: View {
     private var startupCommandsSection: some View {
         GroupBox {
             VStack(alignment: .leading, spacing: 14) {
-                Label("启动执行命令", systemImage: "terminal.fill")
+                Label("开机启动执行命令", systemImage: "terminal.fill")
                     .font(.subheadline.bold())
                     .foregroundColor(.primary)
 
-                Text("软件启动时自动执行以下 shell 命令。按顺序执行，后台运行不阻塞启动。")
+                Text("Mac 开机后首次启动 Magicer 时自动执行以下 shell 命令。同一次开机多次打开应用只执行一次，后台运行不阻塞启动。")
                     .font(.caption)
                     .foregroundColor(.secondary)
 
@@ -471,7 +471,7 @@ struct AppSettingsView: View {
 
                 // Add command row
                 VStack(alignment: .leading, spacing: 8) {
-                    Text("添加命令").font(.caption).foregroundColor(.secondary)
+                    Text("添加开机命令").font(.caption).foregroundColor(.secondary)
                     HStack(spacing: 8) {
                         TextField("标签（如：打开代理）", text: $newCmdLabel)
                             .textFieldStyle(.roundedBorder)
